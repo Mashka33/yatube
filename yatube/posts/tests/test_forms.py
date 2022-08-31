@@ -242,7 +242,7 @@ class CommentPostCreateTest(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         login = reverse('users:login')
-        post = reverse('posts:add_comment', 
+        post = reverse('posts:add_comment',
                        args=(self.post.pk,))
         self.assertRedirects(response,
                              f'{login}?next={post}')
