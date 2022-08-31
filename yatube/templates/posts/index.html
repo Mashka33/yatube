@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Yatube{% endblock %}
+
+ 
+{% block content %}
+  <h1>Главная страница</h1>
+  <br>
+  {% include 'posts/includes/switcher.html' %}
+  {% for post in page_obj %}
+    {% include 'posts/includes/post_card.html' %}
+  {% endfor %}
+  {% include 'posts/includes/paginator.html' %}
+{% endblock %}
