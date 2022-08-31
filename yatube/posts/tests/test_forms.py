@@ -4,7 +4,6 @@ import tempfile
 from http import HTTPStatus
 
 from django.conf import settings
-from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -59,7 +58,7 @@ class PostFormTests(TestCase):
         """Пост с картинкой, но мне это категорически не нравится
         Надо встроить в создание поста авторизованным пользователем,
         но пока не получается. Сколько не разбиралась так и не смогла понять
-        почему вариант в тесте авторизованного не проходит(("""
+        почему в тесте авторизованного не проходит(("""
 
         posts_count = Post.objects.count()
         uploaded = SimpleUploadedFile(
@@ -90,8 +89,9 @@ class PostFormTests(TestCase):
         )
 
     def test_authorized_client_create_new_post(self):
-        # Авторизованный может создать пост закоментила куски кода, 
-        # которые на картинку хотела вставить, что скажешь? В чём может быть проблема
+        # Авторизованный может создать пост закоментила куски кода,
+        # которые на картинку хотела вставить, что скажешь?
+        # В чём может быть проблема
         posts_count = Post.objects.count()
 
         """uploaded = SimpleUploadedFile(
@@ -102,7 +102,7 @@ class PostFormTests(TestCase):
         form_data = {
             'text': 'Тестовый пост',
             'group': self.group.pk,
-            #'image': uploaded,
+            # 'image': uploaded,
         }
         response = self.authorized_author.post(
             reverse('posts:post_create'),
@@ -116,13 +116,13 @@ class PostFormTests(TestCase):
         self.assertEqual(post.text, 'Тестовый пост')
         self.assertEqual(post.author, self.user)
         self.assertEqual(post.group, self.group)
-        #self.assertEqual(post.image.name, 'posts/small.gif')
+        # self.assertEqual(post.image.name, 'posts/small.gif')
         self.assertTrue(
             Post.objects.filter(
                 text='Тестовый пост',
                 author=self.user,
                 group=self.group,
-                #image='posts/small.gif',
+                # image='posts/small.gif',
             ).exists()
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -212,15 +212,14 @@ class CommentPostCreateTest(TestCase):
             'text': 'Текст комментария',
         }
         response = self.authorized_author.post(
-            reverse('posts:add_comment', 
+            reverse('posts:add_comment',
                     args=(self.post.pk,)),
             data=form_data,
             follow=True
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertRedirects(response, reverse('posts:post_detail',
-                             args=(self.post.pk,))
-        )
+                             args=(self.post.pk,)))
         self.assertEqual(self.post.comments.count(), comment_count + 1)
         comment_request = self.authorized_author.get(
             reverse('posts:post_detail', args=(self.post.pk,))
@@ -236,7 +235,7 @@ class CommentPostCreateTest(TestCase):
             'text': 'Текст комментария',
         }
         response = self.client.post(
-            reverse('posts:add_comment', 
+            reverse('posts:add_comment',
                     args=(self.post.pk,)),
             data=form_data,
             follow=True
@@ -244,7 +243,7 @@ class CommentPostCreateTest(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         login = reverse('users:login')
         post = reverse('posts:add_comment', 
-                    args=(self.post.pk,))
+                       args=(self.post.pk,))
         self.assertRedirects(response,
                              f'{login}?next={post}')
         self.assertEqual(self.post.comments.count(), comment_count)

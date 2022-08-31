@@ -17,7 +17,8 @@ class PostForm(forms.ModelForm):
             'group': 'Группа, в которой будет размещён пост',
             'image': 'Загрузите картинку'
         }
-    
+
+
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment

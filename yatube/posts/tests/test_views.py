@@ -18,6 +18,7 @@ User = get_user_model()
 
 PAG_CNT = 13
 
+
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class PostPagesTests(TestCase):
     @classmethod
@@ -50,7 +51,7 @@ class PostPagesTests(TestCase):
             text='Тестовый пост',
             image=cls.uploaded,
         )
-    
+
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
