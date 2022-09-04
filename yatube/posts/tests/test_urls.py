@@ -92,7 +92,7 @@ class StaticURLTests(TestCase):
             with self.subTest(args=args):
                 if reverse_name == 'posts:profile_follow':
                     response = self.authorized_author.get(
-                    reverse(reverse_name, args=args))
+                        reverse(reverse_name, args=args))
                     self.assertRedirects(
                         response, reverse('posts:profile', args=args))
                 elif reverse_name == 'posts:profile_unfollow':

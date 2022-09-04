@@ -295,7 +295,7 @@ class FollowViewsTest(TestCase):
         Follow.objects.all().delete()
         self.assertEqual(Follow.objects.count(), follows_count - 1)
 
-    def test_post_include_in_following(self): 
+    def test_post_include_in_following(self):
         Follow.objects.create(
             user=self.follower,
             author=self.author,
@@ -306,7 +306,7 @@ class FollowViewsTest(TestCase):
             )
         )
         self.assertEqual(response.context['page_obj'][0], self.post)
-    
+
         response = self.user_client.get(
             reverse(
                 'posts:follow_index'
