@@ -27,10 +27,7 @@ def group_posts(request, slug):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     posts = author.posts.select_related('group')
-    following = None
-    if request.user.is_authenticated:
-        following = author.following.filter(
-            user=request.user).exists()
+    following = request.user.is_authenticated and author.following.filter(user=request.user).exists()
     context = {
         'author': author,
         'page_obj': pagination(request, posts),

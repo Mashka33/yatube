@@ -172,13 +172,13 @@ class PostPagesTests(TestCase):
     def test_cache_index_page(self):
         """Записи Index хранятся в кэше и обновлялся раз в 20 секунд"""
         Post.objects.all().delete()
-        post = Post.objects.create(
+        post_cach = Post.objects.create(
             text='Тестовый текст для кэша',
             author=self.user,
             group=self.group,
         )
         response_1 = self.authorized_author.get(reverse('posts:index'))
-        Post.objects.filter(id=post.id).delete()
+        post_cach.delete()
         response_2 = self.authorized_author.get(reverse('posts:index'))
         self.assertEqual(response_1.content, response_2.content)
         cache.clear()

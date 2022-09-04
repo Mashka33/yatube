@@ -8,7 +8,7 @@
   <br>
   {% include 'posts/includes/switcher.html' with index=True %}
   {% load cache %}
-  {% cache 20 index_page page%}
+  {% cache 30 sidebar index page_obj.number %}
   {% for post in page_obj %}
     {% include 'posts/includes/post_card.html' %}
   {% endfor %}

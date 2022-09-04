@@ -35,7 +35,6 @@ class CommentAdmin(admin.ModelAdmin):
     )
     search_fields = ('text',)
     list_filter = ('created',)
-    empty_value_display = '-пусто-'
 
 
 class FollowAdmin(admin.ModelAdmin):
@@ -44,7 +43,6 @@ class FollowAdmin(admin.ModelAdmin):
         'user',
         'author',
     )
-    empty_value_display = '-пусто-'
 
 
 admin.site.register(Post, PostAdmin)
