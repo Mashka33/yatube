@@ -4,7 +4,7 @@
   <ul>
     <li>
       {% if author %}
-        Автор: {{ post.author.get_full_name }}
+        Автор: {{ post.author }}
       {% else %}
         <a href="{% url 'posts:profile' post.author %}">{{ post.author.username}}</a>
       {% endif %}

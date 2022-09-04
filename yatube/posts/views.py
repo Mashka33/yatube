@@ -1,15 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_cookie
 
 from .forms import PostForm, CommentForm
 from .models import Group, Post, User, Comment, Follow
 from .utils import pagination
 
 
-@cache_page(20, key_prefix='index')
-@vary_on_cookie
 def index(request):
     posts = Post.objects.select_related('author', 'group')
     context = {
@@ -31,21 +27,27 @@ def group_posts(request, slug):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     posts = author.posts.select_related('group')
+    following = None
+    if request.user.is_authenticated:
+        following = author.following.filter(
+            user=request.user).exists()
     context = {
         'author': author,
         'page_obj': pagination(request, posts),
+        'following': following,
     }
     return render(request, 'posts/profile.html', context)
 
 
 def post_detail(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(
+        Post.objects.prefetch_related(
+            'comments__author'), id=post_id)
     form = CommentForm(request.POST or None)
-    comments = Comment.objects.filter(post=post)
     context = {
         'post': post,
         'form': form,
-        'comments': comments,
+        'comments': post.comments.all(),
     }
     return render(request, 'posts/post_detail.html', context)
 
@@ -92,20 +94,14 @@ def add_comment(request, post_id):
         comment.post = post
         comment.author = request.user
         comment.save()
-        return redirect('posts:post_detail', post_id)
-    context = {
-        'form': form,
-        'post': post,
-        'author': post.author,
-    }
-    return render(
-        request, 'includes/comments.html', context)
+    return redirect('posts:post_detail', post_id)
 
 
 @login_required
 def follow_index(request):
     posts = Post.objects.filter(
-        author__following__user=request.user)
+        author__following__user=request.user
+    ).select_related('author', 'group')
     context = {
         'page_obj': pagination(request, posts),
     }
@@ -126,10 +122,9 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    unfollow_user = get_object_or_404(User, username=username)
     get_object_or_404(
         Follow,
         user=request.user,
-        author=unfollow_user
+        author__username=username,
     ).delete()
     return redirect('posts:profile', username=username)

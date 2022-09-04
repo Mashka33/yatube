@@ -2,6 +2,7 @@ import shutil
 import tempfile
 
 from http import HTTPStatus
+from tkinter import image_names
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -9,7 +10,7 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from posts.forms import CommentForm
-from posts.models import Post, Group, User
+from posts.models import Post, Group, User, Comment
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -17,21 +18,6 @@ class PostFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
-        cls.small_gif = (
-            b'\x47\x49\x46\x38\x39\x61\x02\x00'
-            b'\x01\x00\x80\x00\x00\x00\x00\x00'
-            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-            b'\x0A\x00\x3B'
-        )
-
-        cls.uploaded = SimpleUploadedFile(
-            name='small.gif',
-            content=cls.small_gif,
-            content_type='image/gif'
-        )
         cls.user = User.objects.create_user(username='NoName')
         cls.group = Group.objects.create(
             title='Тестовая группа',
@@ -42,67 +28,38 @@ class PostFormTests(TestCase):
             author=cls.user,
             group=cls.group,
             text='Тестовый пост',
-            image=cls.uploaded,
         )
 
     @classmethod
     def tearDownClass(cls):
-        super().tearDownClass()
         shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
 
     def setUp(self):
         self.authorized_author = Client()
         self.authorized_author.force_login(self.user)
-
-    def test_new_post_with_image(self):
-        """Пост с картинкой, но мне это категорически не нравится
-        Надо встроить в создание поста авторизованным пользователем,
-        но пока не получается. Сколько не разбиралась так и не смогла понять
-        почему в тесте авторизованного не проходит(("""
-
-        posts_count = Post.objects.count()
-        uploaded = SimpleUploadedFile(
-            name='small.gif',
+        self.small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+            b'\x0A\x00\x3B'
+        )
+        image_name= 'small.gif'
+        self.uploaded = SimpleUploadedFile(
+            name=image_name,
             content=self.small_gif,
             content_type='image/gif'
         )
-        form_data = {
-            'group': self.group.pk,
-            'text': 'Тестовый пост',
-            'image': uploaded,
-        }
-        response = self.authorized_author.post(
-            reverse('posts:post_create'),
-            data=form_data,
-            follow=True
-        )
-        self.assertRedirects(response, reverse('posts:profile',
-                                               args=(self.user,)))
-
-        self.assertEqual(Post.objects.count(), posts_count + 1)
-        self.assertTrue(
-            Post.objects.filter(
-                group=self.group,
-                text='Тестовый пост',
-                image='posts/small.gif',
-            ).exists()
-        )
 
     def test_authorized_client_create_new_post(self):
-        # Авторизованный может создать пост закоментила куски кода,
-        # которые на картинку хотела вставить, что скажешь?
-        # В чём может быть проблема
+        # Авторизованный может создать пост
         posts_count = Post.objects.count()
-
-        """uploaded = SimpleUploadedFile(
-            name='small.gif',
-            content= self.small_gif,
-            content_type='image/gif'
-        )"""
         form_data = {
             'text': 'Тестовый пост',
             'group': self.group.pk,
-            # 'image': uploaded,
+            'image': self.uploaded,
         }
         response = self.authorized_author.post(
             reverse('posts:post_create'),
@@ -116,13 +73,13 @@ class PostFormTests(TestCase):
         self.assertEqual(post.text, 'Тестовый пост')
         self.assertEqual(post.author, self.user)
         self.assertEqual(post.group, self.group)
-        # self.assertEqual(post.image.name, 'posts/small.gif')
+        self.assertEqual(post.image.name, 'posts/small.gif')
         self.assertTrue(
             Post.objects.filter(
                 text='Тестовый пост',
                 author=self.user,
                 group=self.group,
-                # image='posts/small.gif',
+                image='posts/small.gif',
             ).exists()
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -221,10 +178,7 @@ class CommentPostCreateTest(TestCase):
         self.assertRedirects(response, reverse('posts:post_detail',
                              args=(self.post.pk,)))
         self.assertEqual(self.post.comments.count(), comment_count + 1)
-        comment_request = self.authorized_author.get(
-            reverse('posts:post_detail', args=(self.post.pk,))
-        )
-        comment = comment_request.context['comments'][0]
+        comment = Comment.objects.first()
         self.assertEqual(comment.text, 'Текст комментария')
         self.assertEqual(comment.author, self.user)
 
