@@ -172,7 +172,7 @@ class PostPagesTests(TestCase):
     def test_cache_index_page(self):
         """Записи Index хранятся в кэше и обновлялся раз в 20 секунд"""
         Post.objects.all().delete()
-        post=Post.objects.create(
+        post = Post.objects.create(
             text='Тестовый текст для кэша',
             author=self.user,
             group=self.group,
@@ -184,6 +184,7 @@ class PostPagesTests(TestCase):
         cache.clear()
         response_3 = self.authorized_author.get(reverse('posts:index'))
         self.assertNotEqual(response_1.content, response_3.content)
+
 
 class PaginatorViewsTest(TestCase):
     @classmethod
@@ -244,6 +245,7 @@ class PaginatorViewsTest(TestCase):
                             self.assertEqual(len(
                                 response.context['page_obj']), count)
 
+
 class FollowViewsTest(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -290,9 +292,9 @@ class FollowViewsTest(TestCase):
             author=self.author,
         )
         follows_count = Follow.objects.count()
-        Follow.objects.all().delete() 
+        Follow.objects.all().delete()
         self.assertEqual(Follow.objects.count(), follows_count - 1)
-    
+
     def test_post_include_in_following(self): 
         Follow.objects.create(
             user=self.follower,

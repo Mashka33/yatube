@@ -49,8 +49,9 @@ class StaticURLTests(TestCase):
         for reverse_name, args, in self.url_status:
             with self.subTest(args=args):
                 if reverse_name in ['posts:post_create', 'posts:post_edit',
-                    'posts:add_comment', 'posts:follow_index',
-                    'posts:profile_follow', 'posts:profile_unfollow']:
+                                    'posts:add_comment', 'posts:follow_index',
+                                    'posts:profile_follow',
+                                    'posts:profile_unfollow']:
                     response = self.client.get(
                         reverse(reverse_name, args=args))
                     name = reverse(reverse_name, args=args)
@@ -61,7 +62,8 @@ class StaticURLTests(TestCase):
                 else:
                     response = self.client.get(
                         reverse(reverse_name, args=args))
-                    self.assertEqual(response.status_code, HTTPStatus.OK, f'Провал status_code для {reverse_name}')
+                    self.assertEqual(response.status_code, HTTPStatus.OK,
+                                     f'Провал status_code для {reverse_name}')
 
     def test_authorized_client_status(self):
         # Проверяем статус авторизованного пользователя
@@ -72,7 +74,8 @@ class StaticURLTests(TestCase):
                         reverse(reverse_name, args=args))
                     self.assertRedirects(
                         response, reverse('posts:post_detail', args=args))
-                elif reverse_name in ['posts:profile_follow', 'posts:profile_unfollow']:
+                elif reverse_name in ['posts:profile_follow',
+                                      'posts:profile_unfollow']:
                     response = self.authorized_client.get(
                         reverse(reverse_name, args=args))
                     self.assertRedirects(
@@ -80,7 +83,8 @@ class StaticURLTests(TestCase):
                 else:
                     response = self.authorized_client.get(
                         reverse(reverse_name, args=args))
-                    self.assertEqual(response.status_code, HTTPStatus.OK, f'Провал status_code для {reverse_name}')
+                    self.assertEqual(response.status_code, HTTPStatus.OK,
+                                     f'Провал status_code для {reverse_name}')
 
     def test_authorized_author_status(self):
         # Проверяем статус автора
@@ -94,7 +98,8 @@ class StaticURLTests(TestCase):
                 elif reverse_name == 'posts:profile_unfollow':
                     response = self.authorized_author.get(
                         reverse(reverse_name, args=args))
-                    self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+                    self.assertEqual(response.status_code,
+                                     HTTPStatus.NOT_FOUND)
                 elif reverse_name == 'posts:add_comment':
                     response = self.authorized_author.get(
                         reverse(reverse_name, args=args))
@@ -103,7 +108,8 @@ class StaticURLTests(TestCase):
                 else:
                     response = self.authorized_author.get(
                         reverse(reverse_name, args=args))
-                    self.assertEqual(response.status_code, HTTPStatus.OK, f'Провал status_code для {reverse_name}')
+                    self.assertEqual(response.status_code, HTTPStatus.OK,
+                                     f'Провал status_code для {reverse_name}')
 
     def test_urls_correct_template(self):
         # Проверяем, что при обращении к name

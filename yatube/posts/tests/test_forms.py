@@ -2,7 +2,6 @@ import shutil
 import tempfile
 
 from http import HTTPStatus
-from tkinter import image_names
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -46,7 +45,7 @@ class PostFormTests(TestCase):
             b'\x02\x00\x01\x00\x00\x02\x02\x0C'
             b'\x0A\x00\x3B'
         )
-        image_name= 'small.gif'
+        image_name = 'small.gif'
         self.uploaded = SimpleUploadedFile(
             name=image_name,
             content=self.small_gif,
