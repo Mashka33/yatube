@@ -50,3 +50,6 @@ python manage.py runserver
 ```
 python3 manage.py test
 ```
+Впоследствие проект был реализован на API, найти его можно по ссылке https://github.com/Mashka33/api_final_yatube.git
+
+*Проект выполнен в рамках обучения Яндекс.Практикум Степановой Марией*
